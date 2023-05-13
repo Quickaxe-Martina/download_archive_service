@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  download_archive_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - BUFF_SIZE=${BUFF_SIZE}
+      - BASE_FILE_FOLDER=${BASE_FILE_FOLDER}
+      - DELAY_TIME=${DELAY_TIME}
+    ports:
+      - "8080:8080"
