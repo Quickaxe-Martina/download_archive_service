@@ -1,12 +1,13 @@
 import asyncio
 import datetime
 import logging
+import os
 
 import aiofiles
 from aiohttp import web
 
 from api.archive import archive
-from settings import LOG_LEVEL
+from settings import set_settings
 
 
 async def handle_index_page(request):
@@ -36,8 +37,9 @@ async def uptime_handler(request):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=LOG_LEVEL)
     app = web.Application()
+    app.on_startup.append(set_settings)
+    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
     app.add_routes(
         [
             web.get("/", handle_index_page),
