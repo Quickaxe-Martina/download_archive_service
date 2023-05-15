@@ -1,50 +1,29 @@
-import asyncio
-import datetime
-import logging
-import os
+from logging import config as logging_config
 
 import aiofiles
 from aiohttp import web
+from aiohttp.web_request import Request
 
 from api.archive import archive
+from logging_config import LOGGING
 from settings import set_settings
 
+logging_config.dictConfig(LOGGING)
 
-async def handle_index_page(request):
+
+async def handle_index_page(request: Request):
     async with aiofiles.open("index.html", mode="r") as index_file:
         index_contents = await index_file.read()
     return web.Response(text=index_contents, content_type="text/html")
 
 
-async def uptime_handler(request):
-    response = web.StreamResponse()
-
-    response.headers["Content-Type"] = "text/html"
-
-    await response.prepare(request)
-
-    while True:
-        formatted_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        message = f"{formatted_date}<br>"
-
-        logging.debug(f"write: {message.encode('utf-8')}")
-        try:
-            await response.write(message.encode("utf-8"))
-        except ConnectionResetError:
-            break
-
-        await asyncio.sleep(1)
-
-
 if __name__ == "__main__":
     app = web.Application()
     app.on_startup.append(set_settings)
-    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
     app.add_routes(
         [
             web.get("/", handle_index_page),
             web.get("/archive/{archive_hash}/", archive),
-            web.get("/server_time/", uptime_handler),
         ]
     )
     web.run_app(app)

@@ -169,3 +169,4 @@ cython_debug/
 *.ipynb
 /t.py
 /v1.mp4
+/test_photos/big_size/
